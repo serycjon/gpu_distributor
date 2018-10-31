@@ -1,0 +1,28 @@
+* GPU distributor
+This is a simple script I use for running batch of experiments on multiple GPUs.
+
+Suppose I want to use GPUs 0, 1 and 3 for running batch of
+experiments.  Each experiment consists of training a DNN on one video
+sequence.  Then I can call:
+#+BEGIN_SRC sh :exports code
+python gpu_distributor.py --gpus 0 1 3 --tmp_dir /tmp/experiments/ --cmd "python train.py --gpu {gpu} --sequence {x} --novis --lr 1e-4" cat_sequence dog_sequence car_sequence
+#+END_SRC
+
+This will create a git-worktree containing new branch of the current
+git repo (at pwd).  Then it will create a worker thread for each GPU and these then consume the queue of commands:
+#+BEGIN_SRC sh :exports code
+python train.py --gpu {gpu} --sequence cat_sequence --novis --lr 1e-4
+python train.py --gpu {gpu} --sequence dog_sequence --novis --lr 1e-4
+python train.py --gpu {gpu} --sequence car_sequence --novis --lr 1e-4
+#+END_SRC
+substituting the {gpu}.
+
+A handy way of doing this is also (assuming that the =sequences= directory contains subdirectory for each sequence):
+#+BEGIN_SRC sh :exports code
+ls sequences | xargs python gpu_distributor.py --gpus 0 1 3 --tmp_dir /tmp/experiments/ --cmd "python train.py --gpu {gpu} --sequence {x} --novis --lr 1e-4"
+#+END_SRC
+
+If the git repo is dirty, the =gpu_distributor= will fail.  You can
+either commit all your changes, or call the =gpu_distributor= with
+=--last_clean_git= option, which runs the experiments on the last
+commited version (without the not-commited changes).
