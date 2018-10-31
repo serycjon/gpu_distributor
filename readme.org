@@ -26,3 +26,5 @@ If the git repo is dirty, the =gpu_distributor= will fail.  You can
 either commit all your changes, or call the =gpu_distributor= with
 =--last_clean_git= option, which runs the experiments on the last
 commited version (without the not-commited changes).
+
+[[file:screenshot.png]]
